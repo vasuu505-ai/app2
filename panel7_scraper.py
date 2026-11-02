@@ -1,13 +1,13 @@
 """
-panel_tempnumbers.py — TempNumbers Panel (WEBHOOK based)
+panel8_scraper.py — TempNumbers Panel 2 (WEBHOOK based)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Polling nahi hai. Panel SMS aate hi is server ko POST karta hai.
 Webhook URL (panel me daalna):
     https://<your-koyeb-app>.koyeb.app/<TEMPNUMBERS_WEBHOOK_PATH>
 
 Use: main.py me
-    import panel7_scraper
-    panel7_scraper.register_routes(app)
+    import panel8_scraper
+    panel8_scraper.register_routes(app)
 """
 
 import os
@@ -26,15 +26,15 @@ from shared_storage import shared_storage
 
 logger = logging.getLogger(__name__)
 
-PANEL_ID   = "tempnumbers"
-PANEL_NAME = "TempNumbers Panel"
+PANEL_ID   = "tempnumbers2"
+PANEL_NAME = "TempNumbers Panel 2"
 
 # ===== CONFIG =====
 # Ye path secret rakho (provider token nahi bhejta, to yahi suraksha hai)
-WEBHOOK_PATH = os.getenv("TEMPNUMBERS_WEBHOOK_PATH", "gen-1lpTArh7dt88").strip("/")
+WEBHOOK_PATH = os.getenv("TEMPNUMBERS2_WEBHOOK_PATH", "").strip("/")
 PORT         = int(os.getenv("PORT", "8000"))   # Koyeb PORT env deta hai
 
-SEEN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tempnumbers_seen.txt")
+SEEN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tempnumbers2_seen.txt")
 
 seen_messages = set()
 seen_order    = deque(maxlen=200000)
@@ -165,6 +165,9 @@ def webhook_view():
 # ===== OPTION 2: main Flask app me route jodo =====
 
 def register_routes(app: Flask):
+    if not WEBHOOK_PATH:
+        logger.warning(f"[{PANEL_ID}] ⚠️ TEMPNUMBERS2_WEBHOOK_PATH set nahi hai, webhook route nahi bana")
+        return
     load_seen()
     app.add_url_rule(f"/{WEBHOOK_PATH}", endpoint=f"{PANEL_ID}_webhook",
                      view_func=webhook_view, methods=["POST"])
@@ -178,7 +181,7 @@ def start_scraper():
     Webhook ka route main.py me register_routes(app) se judta hai, isliye yahan
     koi alag server NAHI chalana (port conflict hota hai). Sirf seen-IDs load karta hai.
 
-    Alag se akela test karna ho to: TEMPNUMBERS_STANDALONE=1 python panel7_scraper.py
+    Alag se akela test karna ho to: TEMPNUMBERS_STANDALONE=1 python panel8_scraper.py
     """
     if os.getenv("TEMPNUMBERS_STANDALONE") != "1":
         logger.info(f"[{PANEL_ID}] ✅ Webhook panel ready (route main.py se juda hai)")
